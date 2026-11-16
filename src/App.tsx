@@ -1,7 +1,8 @@
 import { Routes, Route, Link } from 'react-router-dom'
 import { Container, Group, Button } from '@mantine/core'
 import RoomsPage from './pages/RoomsPage'
-import RoomDetailsPage from './pages/RoomDetailsPage' 
+import RoomDetailsPage from './pages/RoomDetailsPage'
+import BookingsPage from './pages/BookingsPage' 
 
 function App() {
   return (
@@ -15,9 +16,8 @@ function App() {
 
       <Routes>
         <Route path="/" element={<RoomsPage />} />
-        {/* Заменяем заглушку на настоящий компонент расписания */}
         <Route path="/rooms/:roomId" element={<RoomDetailsPage />} />
-        <Route path="/bookings" element={<h1>Мои брони (в разработке)</h1>} />
+        <Route path="/bookings" element={<BookingsPage />} />
       </Routes>
     </>
   )
