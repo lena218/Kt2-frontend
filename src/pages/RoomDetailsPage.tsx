@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   Container, Title, Button, SimpleGrid, Card, Text, Group,
-  Modal, TextInput, Stack, Notification,
+  Modal, TextInput, Stack, Notification, Badge,
 } from '@mantine/core';
-import { saveBooking } from '../storage';
+import { saveBooking, getBookings } from '../storage';
 import type { Booking } from '../types';
 
 const generateTimeSlots = () => {
@@ -22,6 +22,8 @@ export default function RoomDetailsPage() {
   const [guestName, setGuestName] = useState('');
   const [meetingTitle, setMeetingTitle] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  // версия для принудительного ререндера после брони
+  const [, setTick] = useState(0);
 
   const room = {
     id: roomId ?? '',
@@ -33,6 +35,13 @@ export default function RoomDetailsPage() {
 
   const timeSlots = generateTimeSlots();
   const today = new Date().toISOString().slice(0, 10);
+
+  // занятые слоты для этой комнаты и даты
+  const bookedTimes = new Set(
+    getBookings()
+      .filter((b) => b.roomId === room.id && b.date === today)
+      .map((b) => b.time)
+  );
 
   const handleBookClick = (time: string) => {
     setSelectedTime(time);
@@ -58,6 +67,7 @@ export default function RoomDetailsPage() {
     setModalOpen(false);
     setSuccessMsg(`Бронь на ${selectedTime} подтверждена!`);
     setTimeout(() => setSuccessMsg(''), 4000);
+    setTick((t) => t + 1); // перерисовать слоты
   };
 
   return (
@@ -77,21 +87,35 @@ export default function RoomDetailsPage() {
       <Text fw={500} mb="sm">Выберите время для бронирования:</Text>
 
       <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing="md">
-        {timeSlots.map((time) => (
-          <Card key={time} shadow="sm" padding="md" radius="md" withBorder>
-            <Group justify="space-between" align="center">
-              <Text fw={500} size="lg">{time}</Text>
-              <Button
-                size="xs"
-                color="blue"
-                variant="light"
-                onClick={() => handleBookClick(time)}
-              >
-                Забронировать
-              </Button>
-            </Group>
-          </Card>
-        ))}
+        {timeSlots.map((time) => {
+          const isBooked = bookedTimes.has(time);
+          return (
+            <Card
+              key={time}
+              shadow="sm"
+              padding="md"
+              radius="md"
+              withBorder
+              style={isBooked ? { opacity: 0.55, background: '#f8f9fa' } : undefined}
+            >
+              <Group justify="space-between" align="center">
+                <div>
+                  <Text fw={500} size="lg">{time}</Text>
+                  {isBooked && <Badge color="red" size="xs" mt={4}>Занято</Badge>}
+                </div>
+                <Button
+                  size="xs"
+                  color={isBooked ? 'gray' : 'blue'}
+                  variant="light"
+                  disabled={isBooked}
+                  onClick={() => handleBookClick(time)}
+                >
+                  {isBooked ? 'Занято' : 'Забронировать'}
+                </Button>
+              </Group>
+            </Card>
+          );
+        })}
       </SimpleGrid>
 
       <Modal
