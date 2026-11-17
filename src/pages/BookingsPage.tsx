@@ -5,6 +5,7 @@ import {
   Badge, Notification, ActionIcon,
 } from '@mantine/core';
 import { getBookings } from '../storage';
+import { formatTime } from '../timeUtils';
 import type { Booking } from '../types';
 
 export default function BookingsPage() {
@@ -34,7 +35,7 @@ export default function BookingsPage() {
       )}
 
       {bookings.length === 0 ? (
-        <Text c="dimmed">Пока нет ни одной брони. Забронируйте переговорную на главной странице.</Text>
+        <Text c="dimmed">Пока нет ни одной брони.</Text>
       ) : (
         <Stack>
           {bookings.map((b) => (
@@ -42,7 +43,9 @@ export default function BookingsPage() {
               <Group justify="space-between" align="flex-start">
                 <div>
                   <Group gap="xs" mb="xs">
-                    <Badge color="blue">{b.time}</Badge>
+                    <Badge color="blue">
+                      {formatTime(b.startMinutes)} - {formatTime(b.startMinutes + b.durationMinutes)}
+                    </Badge>
                     <Badge color="gray" variant="light">{b.date}</Badge>
                   </Group>
                   <Text fw={600} size="lg">{b.meetingTitle}</Text>

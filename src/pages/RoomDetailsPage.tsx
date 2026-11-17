@@ -2,28 +2,27 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   Container, Title, Button, SimpleGrid, Card, Text, Group,
-  Modal, TextInput, Stack, Notification, Badge,
+  Modal, TextInput, Stack, Notification, Select, Badge
 } from '@mantine/core';
 import { saveBooking, getBookings } from '../storage';
+import { generateTimeSlots, formatTime, isTimeOverlapping } from '../timeUtils';
 import type { Booking } from '../types';
-
-const generateTimeSlots = () => {
-  const slots = [];
-  for (let i = 9; i <= 20; i++) {
-    slots.push(`${i.toString().padStart(2, '0')}:00`);
-  }
-  return slots;
-};
 
 export default function RoomDetailsPage() {
   const { roomId } = useParams();
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedTime, setSelectedTime] = useState('');
+  const [selectedMinutes, setSelectedMinutes] = useState(0);
   const [guestName, setGuestName] = useState('');
   const [meetingTitle, setMeetingTitle] = useState('');
+  const [duration, setDuration] = useState<string>('60'); 
   const [successMsg, setSuccessMsg] = useState('');
-  // версия для принудительного ререндера после брони
-  const [, setTick] = useState(0);
+
+  
+  const allBookings = getBookings();
+  const today = new Date().toISOString().slice(0, 10);
+  const roomBookings = allBookings.filter(
+    (b) => b.roomId === roomId && b.date === today
+  );
 
   const room = {
     id: roomId ?? '',
@@ -34,19 +33,12 @@ export default function RoomDetailsPage() {
   };
 
   const timeSlots = generateTimeSlots();
-  const today = new Date().toISOString().slice(0, 10);
 
-  // занятые слоты для этой комнаты и даты
-  const bookedTimes = new Set(
-    getBookings()
-      .filter((b) => b.roomId === room.id && b.date === today)
-      .map((b) => b.time)
-  );
-
-  const handleBookClick = (time: string) => {
-    setSelectedTime(time);
+  const handleBookClick = (time: number) => {
+    setSelectedMinutes(time);
     setGuestName('');
     setMeetingTitle('');
+    setDuration('60');
     setModalOpen(true);
   };
 
@@ -58,16 +50,16 @@ export default function RoomDetailsPage() {
       roomId: room.id,
       roomName: room.name,
       date: today,
-      time: selectedTime,
+      startMinutes: selectedMinutes,
+      durationMinutes: Number(duration),
       guestName: guestName.trim(),
       meetingTitle: meetingTitle.trim(),
     };
 
     saveBooking(booking);
     setModalOpen(false);
-    setSuccessMsg(`Бронь на ${selectedTime} подтверждена!`);
+    setSuccessMsg(`Бронь на ${formatTime(selectedMinutes)} подтверждена!`);
     setTimeout(() => setSuccessMsg(''), 4000);
-    setTick((t) => t + 1); // перерисовать слоты
   };
 
   return (
@@ -88,30 +80,34 @@ export default function RoomDetailsPage() {
 
       <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing="md">
         {timeSlots.map((time) => {
-          const isBooked = bookedTimes.has(time);
+          // Проверяем, занят ли этот слот (хотя бы на 15 минут)
+          const isOccupied = isTimeOverlapping(time, 15, roomBookings);
+
           return (
-            <Card
-              key={time}
-              shadow="sm"
-              padding="md"
-              radius="md"
-              withBorder
-              style={isBooked ? { opacity: 0.55, background: '#f8f9fa' } : undefined}
+            <Card 
+              key={time} 
+              shadow="sm" 
+              padding="md" 
+              radius="md" 
+              withBorder 
+              bg={isOccupied ? 'gray.1' : 'white'}
             >
               <Group justify="space-between" align="center">
-                <div>
-                  <Text fw={500} size="lg">{time}</Text>
-                  {isBooked && <Badge color="red" size="xs" mt={4}>Занято</Badge>}
-                </div>
-                <Button
-                  size="xs"
-                  color={isBooked ? 'gray' : 'blue'}
-                  variant="light"
-                  disabled={isBooked}
-                  onClick={() => handleBookClick(time)}
-                >
-                  {isBooked ? 'Занято' : 'Забронировать'}
-                </Button>
+                <Text fw={500} size="lg" c={isOccupied ? 'dimmed' : 'black'}>
+                  {formatTime(time)}
+                </Text>
+                {isOccupied ? (
+                  <Badge color="gray">Занято</Badge>
+                ) : (
+                  <Button
+                    size="xs"
+                    color="blue"
+                    variant="light"
+                    onClick={() => handleBookClick(time)}
+                  >
+                    Забронировать
+                  </Button>
+                )}
               </Group>
             </Card>
           );
@@ -121,7 +117,7 @@ export default function RoomDetailsPage() {
       <Modal
         opened={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={`Бронирование на ${selectedTime}`}
+        title={`Бронирование на ${formatTime(selectedMinutes)}`}
         centered
       >
         <Stack>
@@ -138,6 +134,19 @@ export default function RoomDetailsPage() {
             value={meetingTitle}
             onChange={(e) => setMeetingTitle(e.currentTarget.value)}
             required
+          />
+          <Select
+            label="Продолжительность"
+            value={duration}
+            onChange={(val) => setDuration(val || '60')}
+            data={[
+              { value: '15', label: '15 минут' },
+              { value: '30', label: '30 минут' },
+              { value: '45', label: '45 минут' },
+              { value: '60', label: '1 час' },
+              { value: '90', label: '1.5 часа' },
+              { value: '120', label: '2 часа' },
+            ]}
           />
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={() => setModalOpen(false)}>

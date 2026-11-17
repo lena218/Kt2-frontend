@@ -10,8 +10,9 @@ export interface Booking {
   id: string;
   roomId: string;
   roomName: string;
-  date: string;      // YYYY-MM-DD
-  time: string;      // HH:00
+  date: string;
+  startMinutes: number;    
+  durationMinutes: number; 
   guestName: string;
   meetingTitle: string;
 }
