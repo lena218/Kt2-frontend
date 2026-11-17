@@ -9,7 +9,10 @@ import { formatTime } from '../timeUtils';
 import type { Booking } from '../types';
 
 export default function BookingsPage() {
-  const [bookings, setBookings] = useState<Booking[]>(() => getBookings());
+  const [bookings, setBookings] = useState<Booking[]>(() => {
+    // Фильтруем при загрузке: оставляем только те брони, у которых есть startMinutes
+    return getBookings().filter((b) => typeof b.startMinutes === 'number');
+  });
   const [msg, setMsg] = useState('');
 
   const handleCancel = (id: string) => {
@@ -44,7 +47,7 @@ export default function BookingsPage() {
                 <div>
                   <Group gap="xs" mb="xs">
                     <Badge color="blue">
-                      {formatTime(b.startMinutes)} - {formatTime(b.startMinutes + b.durationMinutes)}
+                      {formatTime(b.startMinutes)} - {formatTime(b.startMinutes + (b.durationMinutes || 0))}
                     </Badge>
                     <Badge color="gray" variant="light">{b.date}</Badge>
                   </Group>
