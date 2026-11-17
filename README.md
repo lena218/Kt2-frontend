@@ -1,75 +1,36 @@
-# React + TypeScript + Vite
+# Room Booking App — Приложение для бронирования переговорных комнат
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Учебный проект: SPA-приложение для просмотра переговорных комнат и бронирования свободных слотов времени.
 
-Currently, two official plugins are available:
+## О проекте
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Приложение позволяет пользователю:
+- Просматривать список доступных переговорных комнат;
+- Открывать карточку комнаты и смотреть её расписание на день (слоты с 09:00 до 20:00);
+- Бронировать свободные слоты;
+- Просматривать свои бронирования;
 
-## React Compiler
+## Как запустить проект
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Требования:
+- Установленный Node.js (версия 18 или выше) — https://nodejs.org/
 
-## Expanding the ESLint configuration
+Установка и запуск:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. Перейти в папку с проектом:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+   cd room-booking-app
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+2. Установить зависимости:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+   npm install
 
-```
+3. Запустить dev-сервер:
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+   npm run dev
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+4. Открыть в браузере:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+   http://localhost:5173
 
-```
+После запуска вы увидите список комнат. 
