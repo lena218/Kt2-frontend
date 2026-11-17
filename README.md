@@ -1,4 +1,5 @@
 # Room Booking App — Приложение для бронирования переговорных комнат
+Ссылка на задание: https://github.com/avito-tech/tech-internship/blob/main/Tech%20Internships/Frontend/Frontend-trainee-assignment-autumn-2026/Frontend-trainee-assignment-autumn-2026.md
 
 Учебный проект: SPA-приложение для просмотра переговорных комнат и бронирования свободных слотов времени.
 
